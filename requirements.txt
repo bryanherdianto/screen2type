@@ -1,0 +1,7 @@
+mss>=10.0.0
+numpy>=1.26.0
+opencv-python>=4.9.0
+paddleocr>=3.0.0
+paddlepaddle>=3.0.0
+pypinyin>=0.51.0
+pynput>=1.7.7

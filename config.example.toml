@@ -1,0 +1,37 @@
+# Copy this file to config.toml, then set [capture].region to the rectangle
+# that contains only the current Chinese prompt in your game.
+
+[capture]
+# mss monitor number: 1 is normally the primary display.
+monitor = 1
+# Left, top, width, height in physical screen pixels. Use tools/select_region.py
+# to choose this interactively.
+region = [100, 100, 700, 120]
+
+[ocr]
+# PaddleOCR language code for simplified/traditional Chinese text.
+language = "ch"
+minimum_confidence = 0.70
+# Keep only Han characters from OCR results. Set false if your game includes
+# ASCII text that also needs to be typed.
+han_characters_only = true
+
+[typing]
+# "pinyin" is typical for a Chinese typing game. "characters" sends Unicode
+# characters directly and requires an IME/application that accepts them.
+mode = "pinyin"
+# Most games accept an uninterrupted pinyin stream. Set to " " if yours needs
+# a separator between syllables.
+pinyin_separator = ""
+seconds_between_keys = 0.008
+# Optional key after each recognised prompt: "none", "enter", "space", or "tab".
+submit_key = "none"
+
+[runtime]
+# Capture/OCR loop interval. Lower values use more CPU/GPU.
+poll_interval_seconds = 0.05
+# Identical text is sent once only. This number of blank OCR reads permits the
+# same text to be sent again after it has disappeared from the screen.
+empty_reads_to_reset = 2
+# Avoid typing if OCR produces an implausibly long result.
+maximum_characters = 40
