@@ -28,11 +28,12 @@ seconds_between_keys = 0.008
 submit_key = "none"
 
 [runtime]
-# Capture/OCR loop interval. Lower values use more CPU/GPU and can starve the
-# hotkey listener, making Ctrl+Alt+S/Q slow to respond.
-poll_interval_seconds = 0.25
+# Capture/OCR loop interval. Lower values use more CPU/GPU.
+poll_interval_seconds = 0.1
 # Identical text is sent once only. This number of blank OCR reads permits the
 # same text to be sent again after it has disappeared from the screen.
 empty_reads_to_reset = 2
 # Avoid typing if OCR produces an implausibly long result.
 maximum_characters = 120
+# Countdown after pressing Enter, giving you time to focus the game window.
+start_delay_seconds = 5

@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 import argparse
+import sys
 import threading
 from pathlib import Path
-
-from pynput import keyboard
 
 from .capture import RegionCapture
 from .config import Settings, load_settings
@@ -24,35 +23,42 @@ class App:
         self._empty_reads = 0
 
     def run(self) -> None:
-        print("Ready. Ctrl+Alt+S toggles typing; Ctrl+Alt+Q quits.")
-        with keyboard.GlobalHotKeys(
-            {
-                "<ctrl>+<alt>+s": self._toggle,
-                "<ctrl>+<alt>+q": self._stop,
-            }
-        ):
-            try:
-                while not self._quit.is_set():
-                    if not self._enabled.is_set():
-                        self._quit.wait(0.05)
-                        continue
-                    self._tick()
-                    self._quit.wait(self._settings.runtime.poll_interval_seconds)
-            finally:
-                self._capture.close()
+        print(
+            "Ready. Press Enter in this terminal to start or pause typing; "
+            "press Ctrl+C to quit.",
+            flush=True,
+        )
+        threading.Thread(target=self._watch_stdin, daemon=True).start()
+        try:
+            while not self._quit.is_set():
+                if not self._enabled.is_set():
+                    self._quit.wait(0.05)
+                    continue
+                self._tick()
+                self._quit.wait(self._settings.runtime.poll_interval_seconds)
+        finally:
+            self._capture.close()
 
-    def _toggle(self) -> None:
-        if self._enabled.is_set():
-            self._enabled.clear()
-            self._last_sent = None
-            self._empty_reads = 0
-            print("Paused.")
-        else:
+    def _watch_stdin(self) -> None:
+        for _ in sys.stdin:
+            if self._quit.is_set():
+                return
+            if self._enabled.is_set():
+                self._enabled.clear()
+                self._last_sent = None
+                self._empty_reads = 0
+                print("Paused. Press Enter to start again.", flush=True)
+                continue
+            delay = int(self._settings.runtime.start_delay_seconds)
+            for remaining in range(delay, 0, -1):
+                print(
+                    f"Starting in {remaining}... switch to the game window.",
+                    flush=True,
+                )
+                if self._quit.wait(1):
+                    return
             self._enabled.set()
-            print("Capture and typing enabled.")
-
-    def _stop(self) -> None:
-        print("Stopping.", flush=True)
+            print("Capture and typing enabled. Press Enter to pause.", flush=True)
         self._quit.set()
 
     def _tick(self) -> None:

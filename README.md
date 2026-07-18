@@ -1,6 +1,6 @@
 # screen2type
 
-An OCR-to-pinyin helper for Chinese typing games. It captures a fixed screen region, recognises the Chinese prompt with PaddleOCR, converts it to pinyin, and sends keystrokes after a global hotkey.
+An OCR helper for Chinese typing games. It captures a fixed screen region, recognises the Chinese prompt with PaddleOCR, and types it back as pinyin or hanzi, controlled from the terminal.
 
 ## Setup
 
@@ -15,10 +15,10 @@ python tools/select_region.py --config config.toml
 python main.py
 ```
 
-Keep the game focused, then use:
+Control it from the terminal:
 
-- `Ctrl+Alt+S` to toggle capture and typing
-- `Ctrl+Alt+Q` to quit
+- Press `Enter` to start capture and typing after a countdown (`runtime.start_delay_seconds`, default 5) that gives you time to focus the game window; press `Enter` again to pause
+- Press `Ctrl+C` to quit
 
 `tools/select_region.py` waits a few seconds (`--delay`, default 5) so you can focus the game window, then opens one captured monitor image. Drag a rectangle tightly around the changing Chinese prompt and press Enter; it updates `config.toml` automatically.
 

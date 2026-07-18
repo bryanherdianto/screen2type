@@ -31,6 +31,7 @@ class RuntimeConfig:
     poll_interval_seconds: float
     empty_reads_to_reset: int
     maximum_characters: int
+    start_delay_seconds: float
 
 
 @dataclass(frozen=True)
@@ -77,5 +78,6 @@ def load_settings(path: Path) -> Settings:
             float(runtime["poll_interval_seconds"]),
             int(runtime["empty_reads_to_reset"]),
             int(runtime["maximum_characters"]),
+            float(runtime.get("start_delay_seconds", 5.0)),
         ),
     )
