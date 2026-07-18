@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 import re
+from time import sleep
 
 import cv2
 import numpy as np
@@ -15,6 +16,12 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=Path, default=Path("config.toml"))
     parser.add_argument("--monitor", type=int, default=None)
+    parser.add_argument(
+        "--delay",
+        type=float,
+        default=5.0,
+        help="seconds to wait before the screenshot, so you can focus the game",
+    )
     args = parser.parse_args()
     if not args.config.is_file():
         parser.error(
@@ -27,6 +34,9 @@ def main() -> int:
         parser.error("config file has no [capture] monitor setting")
     configured_monitor = int(match.group(1))
     monitor_number = args.monitor or configured_monitor
+    for remaining in range(int(args.delay), 0, -1):
+        print(f"Capturing in {remaining}... switch to the game window now.")
+        sleep(1)
     with mss() as sct:
         if monitor_number < 1 or monitor_number >= len(sct.monitors):
             parser.error(f"monitor must be 1 through {len(sct.monitors) - 1}")

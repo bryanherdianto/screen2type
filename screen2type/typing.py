@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import threading
 from time import sleep
 
 from pynput.keyboard import Controller, Key
@@ -13,7 +14,7 @@ class TextTyper:
         self._config = config
         self._keyboard = Controller()
 
-    def send(self, text: str) -> str:
+    def send(self, text: str, cancel: threading.Event | None = None) -> str:
         if self._config.mode == "pinyin":
             output = self._config.pinyin_separator.join(
                 lazy_pinyin(text, style=Style.NORMAL, errors=lambda value: list(value))
@@ -22,6 +23,8 @@ class TextTyper:
             output = text
 
         for character in output:
+            if cancel is not None and cancel.is_set():
+                return output
             self._keyboard.press(character)
             self._keyboard.release(character)
             if self._config.seconds_between_keys:

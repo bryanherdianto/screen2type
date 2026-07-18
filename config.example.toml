@@ -19,7 +19,7 @@ han_characters_only = true
 [typing]
 # "pinyin" is typical for a Chinese typing game. "characters" sends Unicode
 # characters directly and requires an IME/application that accepts them.
-mode = "pinyin"
+mode = "characters"
 # Most games accept an uninterrupted pinyin stream. Set to " " if yours needs
 # a separator between syllables.
 pinyin_separator = ""
@@ -28,10 +28,11 @@ seconds_between_keys = 0.008
 submit_key = "none"
 
 [runtime]
-# Capture/OCR loop interval. Lower values use more CPU/GPU.
-poll_interval_seconds = 0.05
+# Capture/OCR loop interval. Lower values use more CPU/GPU and can starve the
+# hotkey listener, making Ctrl+Alt+S/Q slow to respond.
+poll_interval_seconds = 0.25
 # Identical text is sent once only. This number of blank OCR reads permits the
 # same text to be sent again after it has disappeared from the screen.
 empty_reads_to_reset = 2
 # Avoid typing if OCR produces an implausibly long result.
-maximum_characters = 40
+maximum_characters = 120

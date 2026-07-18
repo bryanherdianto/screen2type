@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 import threading
 from pathlib import Path
-from time import sleep
 
 from pynput import keyboard
 
@@ -25,20 +24,20 @@ class App:
         self._empty_reads = 0
 
     def run(self) -> None:
-        print("Ready. Ctrl+Shift+S toggles typing; Ctrl+Shift+Q quits.")
+        print("Ready. Ctrl+Alt+S toggles typing; Ctrl+Alt+Q quits.")
         with keyboard.GlobalHotKeys(
             {
-                "<ctrl>+<shift>+s": self._toggle,
-                "<ctrl>+<shift>+q": self._stop,
+                "<ctrl>+<alt>+s": self._toggle,
+                "<ctrl>+<alt>+q": self._stop,
             }
         ):
             try:
                 while not self._quit.is_set():
                     if not self._enabled.is_set():
-                        sleep(0.05)
+                        self._quit.wait(0.05)
                         continue
                     self._tick()
-                    sleep(self._settings.runtime.poll_interval_seconds)
+                    self._quit.wait(self._settings.runtime.poll_interval_seconds)
             finally:
                 self._capture.close()
 
@@ -53,7 +52,7 @@ class App:
             print("Capture and typing enabled.")
 
     def _stop(self) -> None:
-        print("Stopping.")
+        print("Stopping.", flush=True)
         self._quit.set()
 
     def _tick(self) -> None:
@@ -70,8 +69,10 @@ class App:
             return
         if text == self._last_sent:
             return
+        if self._quit.is_set() or not self._enabled.is_set():
+            return
 
-        output = self._typer.send(text)
+        output = self._typer.send(text, cancel=self._quit)
         self._last_sent = text
         print(f"Sent {text!r} as {output!r}")
 
